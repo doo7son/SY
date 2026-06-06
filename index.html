@@ -30,11 +30,19 @@
                 <input type="text" id="player-name" placeholder="이름을 입력하세요" maxlength="10">
                 <button id="start-btn" class="btn primary">퀴즈 시작!</button>
             </div>
-            <div class="leaderboard">
-                <h3>🏆 실시간 개인 순위 (Top 10)</h3>
-                <ul id="leaderboard-list">
-                    <!-- Leaderboard items will be added here via JS -->
-                </ul>
+            <div class="leaderboard-container">
+                <div class="leaderboard">
+                    <h3>🏆 학급별 총점 순위</h3>
+                    <ul id="class-leaderboard-list">
+                        <!-- Class totals will be added here -->
+                    </ul>
+                </div>
+                <div class="leaderboard">
+                    <h3>👤 개인 순위 (Top 10)</h3>
+                    <ul id="leaderboard-list">
+                        <!-- Individual items will be added here -->
+                    </ul>
+                </div>
             </div>
         </div>
 

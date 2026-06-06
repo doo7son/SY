@@ -79,25 +79,53 @@ const wordDisplay = document.getElementById('word-display');
 const optionsGrid = document.getElementById('options-grid');
 const finalScoreDisplay = document.getElementById('final-score-val');
 const leaderboardList = document.getElementById('leaderboard-list');
+const classLeaderboardList = document.getElementById('class-leaderboard-list');
 const container = document.querySelector('.container');
 
-// Real-time Leaderboard
-const q = query(scoresCollection, orderBy("score", "desc"), limit(10));
-onSnapshot(q, (snapshot) => {
+// Real-time Leaderboard (Individual & Class)
+const qAll = query(scoresCollection, orderBy("score", "desc")); // Get more to calculate class totals
+onSnapshot(qAll, (snapshot) => {
+    // 1. Individual Leaderboard (Top 10)
     leaderboardList.innerHTML = "";
-    if (snapshot.empty) {
-        leaderboardList.innerHTML = "<li>기록이 없습니다. 첫 주인공이 되세요!</li>";
-        return;
+    const top10 = snapshot.docs.slice(0, 10);
+    if (top10.length === 0) {
+        leaderboardList.innerHTML = "<li>기록이 없습니다.</li>";
+    } else {
+        top10.forEach((doc, index) => {
+            const data = doc.data();
+            const li = document.createElement('li');
+            li.className = "leaderboard-item";
+            li.innerHTML = `<span><span class="rank">${index + 1}위</span> [${data.class || '미소속'}] ${data.name}</span><span><strong>${data.score}점</strong></span>`;
+            leaderboardList.appendChild(li);
+        });
     }
-    let rank = 1;
-    snapshot.forEach((doc) => {
+
+    // 2. Class Leaderboard (Sum of scores)
+    classLeaderboardList.innerHTML = "";
+    const classTotals = {};
+    
+    snapshot.docs.forEach(doc => {
         const data = doc.data();
-        const li = document.createElement('li');
-        li.className = "leaderboard-item";
-        li.innerHTML = `<span><span class="rank">${rank}위</span> [${data.class || '미소속'}] ${data.name}</span><span><strong>${data.score}점</strong></span>`;
-        leaderboardList.appendChild(li);
-        rank++;
+        if (data.class) {
+            classTotals[data.class] = (classTotals[data.class] || 0) + data.score;
+        }
     });
+
+    // Convert to array and sort
+    const sortedClasses = Object.entries(classTotals)
+        .map(([className, total]) => ({ className, total }))
+        .sort((a, b) => b.total - a.total);
+
+    if (sortedClasses.length === 0) {
+        classLeaderboardList.innerHTML = "<li>기록이 없습니다.</li>";
+    } else {
+        sortedClasses.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.className = "leaderboard-item";
+            li.innerHTML = `<span><span class="rank">${index + 1}위</span> ${item.className}</span><span><strong>${item.total.toLocaleString()}점</strong></span>`;
+            classLeaderboardList.appendChild(li);
+        });
+    }
 });
 
 // Event Listeners
