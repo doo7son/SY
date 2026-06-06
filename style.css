@@ -34,6 +34,13 @@ body {
     text-align: center;
 }
 
+header .main-logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 1rem;
+    border-radius: 15px;
+}
+
 header h1 {
     margin-bottom: 0.5rem;
     color: var(--primary-color);

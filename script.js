@@ -83,11 +83,16 @@ const classLeaderboardList = document.getElementById('class-leaderboard-list');
 const container = document.querySelector('.container');
 
 // Real-time Leaderboard (Individual & Class)
-const qAll = query(scoresCollection, orderBy("score", "desc")); // Get more to calculate class totals
+// We fetch more documents to ensure we have enough data to sum class scores
+const qAll = query(scoresCollection, orderBy("score", "desc"), limit(100)); 
 onSnapshot(qAll, (snapshot) => {
-    // 1. Individual Leaderboard (Top 10)
+    console.log("새로운 데이터 수신:", snapshot.size, "개의 기록");
+    
+    // 1. 개인 순위 (Top 10)
     leaderboardList.innerHTML = "";
-    const top10 = snapshot.docs.slice(0, 10);
+    const docs = snapshot.docs;
+    const top10 = docs.slice(0, 10);
+    
     if (top10.length === 0) {
         leaderboardList.innerHTML = "<li>기록이 없습니다.</li>";
     } else {
@@ -100,18 +105,17 @@ onSnapshot(qAll, (snapshot) => {
         });
     }
 
-    // 2. Class Leaderboard (Sum of scores)
+    // 2. 학급 순위 (모든 불러온 데이터 합산)
     classLeaderboardList.innerHTML = "";
     const classTotals = {};
     
-    snapshot.docs.forEach(doc => {
+    docs.forEach(doc => {
         const data = doc.data();
         if (data.class) {
-            classTotals[data.class] = (classTotals[data.class] || 0) + data.score;
+            classTotals[data.class] = (classTotals[data.class] || 0) + Number(data.score);
         }
     });
 
-    // Convert to array and sort
     const sortedClasses = Object.entries(classTotals)
         .map(([className, total]) => ({ className, total }))
         .sort((a, b) => b.total - a.total);
