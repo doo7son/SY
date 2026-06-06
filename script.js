@@ -49,7 +49,8 @@ onSnapshot(q, (snapshot) => {
         return;
     }
     
-    snapshot.forEach((doc, index) => {
+    let index = 0;
+    snapshot.forEach((doc) => {
         const data = doc.data();
         const li = document.createElement('li');
         li.className = "leaderboard-item";
@@ -58,6 +59,7 @@ onSnapshot(q, (snapshot) => {
             <span><strong>${data.score}점</strong></span>
         `;
         leaderboardList.appendChild(li);
+        index++;
     });
 });
 
