@@ -36,7 +36,24 @@ const words = [
     { en: "ocean", ko: "대양" }, { en: "perfect", ko: "완벽한" }, { en: "question", ko: "질문" },
     { en: "respect", ko: "존경하다" }, { en: "special", ko: "특별한" }, { en: "treasure", ko: "보물" },
     { en: "umbrella", ko: "우산" }, { en: "vacation", ko: "휴가" }, { en: "welcome", ko: "환영하다" },
-    { en: "yesterday", ko: "어제" }, { en: "zoo", ko: "동물원" }
+    { en: "yesterday", ko: "어제" }, { en: "zoo", ko: "동물원" },
+    { en: "address", ko: "주소" }, { en: "afraid", ko: "두려워하는" }, { en: "answer", ko: "대답" },
+    { en: "arrive", ko: "도착하다" }, { en: "become", ko: "되다" }, { en: "bridge", ko: "다리" },
+    { en: "bright", ko: "밝은" }, { en: "camera", ko: "카메라" }, { en: "center", ko: "중심" },
+    { en: "change", ko: "변화" }, { en: "cheap", ko: "싼" }, { en: "clean", ko: "깨끗한" },
+    { en: "cloudy", ko: "구름 낀" }, { en: "collect", ko: "수집하다" }, { en: "concert", ko: "콘서트" },
+    { en: "cookie", ko: "쿠키" }, { en: "corner", ko: "모퉁이" }, { en: "cousin", ko: "사촌" },
+    { en: "dangerous", ko: "위험한" }, { en: "dinner", ko: "저녁식사" }, { en: "dream", ko: "꿈" },
+    { en: "early", ko: "일찍" }, { en: "earth", ko: "지구" }, { en: "energy", ko: "에너지" },
+    { en: "enough", ko: "충분한" }, { en: "everywhere", ko: "어디나" }, { en: "exercise", ko: "운동" },
+    { en: "family", ko: "가족" }, { en: "farmer", ko: "농부" }, { en: "feeling", ko: "느낌" },
+    { en: "flower", ko: "꽃" }, { en: "forget", ko: "잊다" }, { en: "future", ko: "미래" },
+    { en: "glass", ko: "유리" }, { en: "ground", ko: "땅" }, { en: "guitar", ko: "기타" },
+    { en: "history", ko: "역사" }, { en: "holiday", ko: "공휴일" }, { en: "hospital", ko: "병원" },
+    { en: "hungry", ko: "배고픈" }, { en: "jacket", ko: "재킷" }, { en: "junior", ko: "연하의" },
+    { en: "kind", ko: "친절한" }, { en: "laugh", ko: "웃다" }, { en: "leader", ko: "지도자" },
+    { en: "listen", ko: "듣다" }, { en: "lunch", ko: "점심식사" }, { en: "magic", ko: "마법" },
+    { en: "market", ko: "시장" }, { en: "memory", ko: "기억" }
 ];
 
 // Game State
@@ -44,13 +61,16 @@ let score = 0;
 let timeLeft = 60;
 let timerId = null;
 let currentPlayerName = "";
+let currentPlayerClass = "";
 let currentWord = null;
+let wordPool = []; // For preventing duplicates
 
 // DOM Elements
 const startScreen = document.getElementById('start-screen');
 const gameScreen = document.getElementById('game-screen');
 const resultScreen = document.getElementById('result-screen');
 const playerNameInput = document.getElementById('player-name');
+const playerClassSelect = document.getElementById('player-class');
 const startBtn = document.getElementById('start-btn');
 const restartBtn = document.getElementById('restart-btn');
 const timerDisplay = document.getElementById('timer');
@@ -74,7 +94,7 @@ onSnapshot(q, (snapshot) => {
         const data = doc.data();
         const li = document.createElement('li');
         li.className = "leaderboard-item";
-        li.innerHTML = `<span><span class="rank">${rank}위</span> ${data.name}</span><span><strong>${data.score}점</strong></span>`;
+        li.innerHTML = `<span><span class="rank">${rank}위</span> [${data.class || '미소속'}] ${data.name}</span><span><strong>${data.score}점</strong></span>`;
         leaderboardList.appendChild(li);
         rank++;
     });
@@ -87,8 +107,12 @@ restartBtn.addEventListener('click', resetGame);
 // Functions
 function startGame() {
     const name = playerNameInput.value.trim();
+    const classVal = playerClassSelect.value;
+    if (!classVal) { alert("학급을 선택해주세요!"); return; }
     if (!name) { alert("이름을 입력해주세요!"); return; }
+    
     currentPlayerName = name;
+    currentPlayerClass = classVal;
     
     startScreen.classList.add('hidden');
     gameScreen.classList.remove('hidden');
@@ -97,6 +121,9 @@ function startGame() {
     timeLeft = 60;
     scoreDisplay.textContent = score;
     timerDisplay.textContent = timeLeft;
+    
+    // Initialize and shuffle word pool
+    wordPool = [...words].sort(() => Math.random() - 0.5);
     
     nextQuestion();
     
@@ -108,8 +135,13 @@ function startGame() {
 }
 
 function nextQuestion() {
-    // Pick a random word
-    currentWord = words[Math.floor(Math.random() * words.length)];
+    if (wordPool.length === 0) {
+        // If all words used, refill pool
+        wordPool = [...words].sort(() => Math.random() - 0.5);
+    }
+
+    // Pop a word from the pool to ensure no duplicates
+    currentWord = wordPool.pop();
     wordDisplay.textContent = currentWord.en;
     
     // Create options (1 correct, 3 wrong)
@@ -160,6 +192,7 @@ async function endGame() {
     try {
         await addDoc(scoresCollection, {
             name: currentPlayerName,
+            class: currentPlayerClass,
             score: score,
             createdAt: serverTimestamp()
         });

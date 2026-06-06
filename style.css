@@ -60,12 +60,13 @@ header p {
     margin-bottom: 2rem;
 }
 
-input[type="text"] {
+input[type="text"], .select-input {
     padding: 12px;
     border: 2px solid #ddd;
     border-radius: 10px;
     font-size: 1rem;
     outline: none;
+    background-color: white;
 }
 
 .btn {

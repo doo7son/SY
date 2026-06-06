@@ -16,11 +16,22 @@
         <!-- Start Screen -->
         <div id="start-screen" class="screen">
             <div class="input-group">
-                <input type="text" id="player-name" placeholder="이름을 입력하세요 (예: 홍길동)" maxlength="10">
+                <select id="player-class" class="select-input">
+                    <option value="" disabled selected>학급 선택</option>
+                    <option value="1-1">1학년 1반</option>
+                    <option value="1-2">1학년 2반</option>
+                    <option value="1-3">1학년 3반</option>
+                    <option value="1-4">1학년 4반</option>
+                    <option value="1-5">1학년 5반</option>
+                    <option value="1-6">1학년 6반</option>
+                    <option value="1-7">1학년 7반</option>
+                    <option value="1-8">1학년 8반</option>
+                </select>
+                <input type="text" id="player-name" placeholder="이름을 입력하세요" maxlength="10">
                 <button id="start-btn" class="btn primary">퀴즈 시작!</button>
             </div>
             <div class="leaderboard">
-                <h3>🏆 실시간 명예의 전당 (Top 10)</h3>
+                <h3>🏆 실시간 개인 순위 (Top 10)</h3>
                 <ul id="leaderboard-list">
                     <!-- Leaderboard items will be added here via JS -->
                 </ul>
